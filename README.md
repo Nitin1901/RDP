@@ -7,5 +7,8 @@ Develop a tool that can autonomously identify faculty &amp; researchers in a giv
 
 ## Crawling websites
 To run the code for crawling the websites, follow these steps:
+<br/>
 cd scraping
+<br/>
 python run.py
+<br/>
