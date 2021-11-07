@@ -3,16 +3,20 @@ import time
 
 driver = webdriver.Chrome (executable_path="C:\\Program Files (x86)\\chromedriver.exe")
 driver.maximize_window()
+#link for civil engineering dept faculty page
 driver.get("https://civil.iitm.ac.in/faculty.php")
 
 faculty = []
 
 content = driver.find_elements_by_class_name('main-content')
 profs = driver.find_elements_by_class_name('selector')
+#looping through professor cards
 for prof in profs:
+    #clicking on professor card to open modal
     driver.execute_script("arguments[0].click();", prof)
     # prof.click()
     time.sleep(5)
+    #extracting details from the modal
     cont = driver.find_element_by_id('feedBk')
     # print(cont.text)
     text = cont.text.split('\n')
@@ -34,9 +38,12 @@ for prof in profs:
     profile = cont.find_element_by_tag_name('a')
     profile = profile.get_attribute('href')
     inputs = cont.find_elements_by_tag_name('input')
+    #closing the modal
     driver.execute_script("arguments[0].click();", inputs[1])
-    # inputs[1].click()
+    
     time.sleep(5)
+    
+    #appending details to faculty list
     row = {
         "name": name,
         "contact": {
@@ -60,7 +67,7 @@ for prof in profs:
 driver.quit()
 print(faculty)
 
-
+#pushing recording to mongodb
 from pymongo import MongoClient
 
 client = MongoClient("<URI string>")
