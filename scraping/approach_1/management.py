@@ -1,11 +1,16 @@
+# importing libraries
 from selenium import webdriver
 import time
 
+# creating web driver using selenium
 driver = webdriver.Chrome (executable_path="C:\\Program Files (x86)\\chromedriver.exe")
 driver.maximize_window()
 driver.get("https://doms.iitm.ac.in/index.php/faculty-research/faculty-members")
 
+# final list is creates to store all the details extracted in json format
 final = []
+
+# Crawling all the faculty details of department and getting profile link of each faculty.
 fac_links = []
 cards = driver.find_elements_by_class_name('favpromote')
 for card in cards:
@@ -13,6 +18,7 @@ for card in cards:
     print(link.get_attribute('href'))
     fac_links.append(link.get_attribute('href'))
 
+# Going to each link and finding the required details.
 for link in fac_links:
     driver.get(link)
     name = driver.find_element_by_class_name('sppb-person-name')
@@ -39,15 +45,14 @@ for link in fac_links:
                         interests.append(point.text)
                     break
             k+=1
-    
+    # Printing all the details    
     print(name)
     print(designation)
     print(email)
     print(link)
     print(interests)
     print('\n')
-
-
+    # Creating a row in json format to push into database
     row = {
         "name": name,
         "contact": {
@@ -65,12 +70,14 @@ for link in fac_links:
         "interests": interests,
         "experience": None
     }
+    # pushing each ro to final list
     final.append(row)
 
 print(final)  
 
 driver.quit()
 
+# Code to push all the data to database
 from pymongo import MongoClient
 
 client = MongoClient("<URI string>")
