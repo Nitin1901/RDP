@@ -1,23 +1,17 @@
 import requests
 
+# download the webpage
 page = requests.get("https://scis.uohyd.ac.in/faculty_scis.php", verify=False)
-print(page.status_code)
+print(page.status_code) # returned 200 (OK)
 
 from bs4 import BeautifulSoup
 
 soup = BeautifulSoup(page.content, "html.parser")
-print(soup.prettify())
-fac_interests = soup.find_all("b")
-cnt = 0
-for i in fac_interests:
-    if 'Areas of Interest' in i.text:
-        area = i.next_sibling
-        area = " ".join(area.split())
-        area = area.split(',')
-        area = [i.strip() for i in area]
-        print(area)
-final = []
+print(soup.prettify()) # print HTML 
+        
+final = [] # array of records 
 
+# extracting data from tags
 fac_basic = soup.find_all(class_="td_faculty")
 fac_phd = soup.find_all("font", attrs={"size": "-1"})
 fac_email = soup.find_all("td", attrs={"valign": "top", "align": "right"})
@@ -64,6 +58,7 @@ for i, j, k, l in zip(fac_basic, fac_phd, fac_email, fac_interests):
         area = [i.strip().lower() for i in area]
         area[-1] = area[-1].replace('.', '')
 
+    # single record following schema
     row = {
         "name": name,
         "contact": {
@@ -86,8 +81,8 @@ for i, j, k, l in zip(fac_basic, fac_phd, fac_email, fac_interests):
 
 from pymongo import MongoClient
 
-client = MongoClient("<URI string>")
-db = client["RDP"]
-collection = db["Professor"]
-result = collection.insert_many(final)
-print(result)
+client = MongoClient("<URI string>") # connect to the db server
+db = client["RDP"] # use RDP db
+collection = db["Professor"] # use Professor collection
+result = collection.insert_many(final) # insert the array of records
+print(result) 
