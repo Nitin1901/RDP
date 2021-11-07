@@ -3,6 +3,7 @@ from selenium import webdriver
 
 driver = webdriver.Chrome (executable_path="C:\\Program Files (x86)\\chromedriver.exe")
 driver.maximize_window()
+#link for CSE dept faculty page
 driver.get("http://www.cse.iitm.ac.in/listpeople.php?arg=MSQw")
 
 d = webdriver.Chrome (executable_path="C:\\Program Files (x86)\\chromedriver.exe")
@@ -25,21 +26,28 @@ if len(driver.find_elements_by_id('homepage')) > 0:
     table = container.find_element_by_tag_name('tbody')
     rows = table.find_elements_by_tag_name('tr')
     del(rows[0])
+    #looping through the rows in the table
     for row in rows:
         cols = row.find_elements_by_tag_name('td')
         for col in cols:
+            #chhecking if the column contains content or is an image
             if len(col.find_elements_by_tag_name('span')) > 0:
+                #extracting profile link
                 prof1 = col.find_element_by_tag_name('span')
                 web1 = prof1.find_element_by_tag_name('a')
                 link1 = web1.get_attribute('href')
+                #opening the profile page
                 website = get_personal_website(link1)
                 name = prof1.text[0: prof1.text.index('(')]
                 phone = prof1.text[prof1.text.find('Phone :')+7: prof1.text.find('\n', prof1.text.find('Phone :')+7)]
                 desgn = prof1.text[prof1.text.index('(')+1: prof1.text.index(')')]
+                #formatting email
                 email = prof1.text[prof1.text.find('Email : ')+8:prof1.text.find('\n', prof1.text.find('Email : ')+8)]
                 email = email.replace(' [at] ', '@')
                 email = email.replace(' [dot] ', '.')
                 research = prof1.text[prof1.text.find('Research Interests : ')+21:prof1.text.find('\n', prof1.text.find('Research Interests : ')+21)]
+                
+                #appending details to faculty list
                 row = {
                     "name": name,
                     "contact": {
@@ -64,6 +72,7 @@ print(faculty)
 driver.quit()
 d.quit()
 
+#pushing recording to mongodb
 from pymongo import MongoClient
 
 client = MongoClient("<URI string>")
