@@ -21,10 +21,6 @@ if len(driver.find_elements_by_class_name('list-product-description')) > 0:
         interests = info[4].split(',')
         row = {
             "name": name,
-            "contact": {
-                "email": None, 
-                "ph_num": None
-            },
             "affiliations": [{
                 "designation": designation,
                 "university": university,
@@ -32,12 +28,17 @@ if len(driver.find_elements_by_class_name('list-product-description')) > 0:
             }],
             "education": None,
             "profile": None,
+            "profile_picture": None,
             "website": None,
             "research": {
                 "area": area,
                 "interests": interests
             },
-            "experience": None
+            "experience": None,
+            "publications": None,
+            "patents": None,
+            "projects": None,
+            "academic_identity": None
         }
         faculty.append(row)
 
