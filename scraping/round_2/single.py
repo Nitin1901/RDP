@@ -3,7 +3,7 @@ import time
 
 driver = webdriver.Chrome (executable_path="C:\\Program Files (x86)\\chromedriver.exe")
 driver.maximize_window()
-driver.get("https://pu.irins.org/profile/22965")
+driver.get("https://iitd.irins.org/profile/42893")
 
 faculty = []
 
@@ -76,38 +76,66 @@ if len(driver.find_elements_by_id('expertise-view')) > 0:
     interest_el = driver.find_elements_by_id('e_s_expertise')
     if len(interest_el) > 0:
         interest = interest_el[0].text.split(',')
-print(area)
-print(interest)
+research = {
+    "area": area,
+    "interests": interest
+}
 #personal info
 if len(driver.find_elements_by_id('list_panel_personal')) > 0:
     personal_info = driver.find_element_by_id('list_panel_personal')
     link_el = personal_info.find_elements_by_tag_name('a')
     if len(link_el) > 0:
         personal_link = link_el[0].get_attribute('href')
-    print(personal_link)
+    
 #list of experience
+experience_list = []
 if len(driver.find_elements_by_id('exp-ul')) > 0:
     exp_el = driver.find_element_by_id('exp-ul')
     exp_time = exp_el.find_elements_by_class_name('cbp_tmtime')
     exp_labels = exp_el.find_elements_by_class_name('cbp_tmlabel')
     for j in range(0, len(exp_time)):
-        print(exp_time[j].text +": "+exp_labels[j].text)
+        exp_split = exp_labels[j].text.split('\n')
+        exp = {
+            "duration": exp_time[j].text,
+            "designation": exp_split[0],
+            "department": exp_split[1],
+            "university": exp_split[2]
+        }
+        experience_list.append(exp)
 
 #list of education qualification
+qualification_list = []
 if len(driver.find_elements_by_id('qua-ul')) > 0:
     edu_el = driver.find_element_by_id('qua-ul')
     edu_time = edu_el.find_elements_by_class_name('cbp_tmtime')
     edu_labels = edu_el.find_elements_by_class_name('cbp_tmlabel')
-    for j in range(0, len(exp_time)):
-        print(edu_time[j].text +": "+edu_labels[j].text)
+    for j in range(0, len(edu_time)):
+        edu_split = edu_labels[j].text.split('\n')
+        qual = {
+            "duration": edu_time[j].text,
+            "degree": edu_split[0],
+            "university": edu_split[1]
+        }
+        qualification_list.append(qual)
+        # print(edu_time[j].text +": "+edu_labels[j].text)
 
-#list of all patents              
+#list of all patents
+patents_list = []            
 inf = driver.find_elements_by_id('pt-form-view')
 if len(inf) > 0:
     boxes = inf[0].find_elements_by_class_name('tag-box')
     if len(boxes) > 0:
         for box in boxes:
-            print(box.text)
+            pat_no = box.find_elements_by_tag_name('li')
+            box_split = box.text.split('\n')
+            if len(box_split) > 1:
+                pat = {
+                    "name": box_split[0],
+                    "authors": box_split[1],
+                    "patent_number": pat_no[0].text
+                }
+                patents_list.append(pat)
+            # print(len(box_split))
 
 #scrape projects
 proj_el = driver.find_elements_by_id('rp-form-view')
@@ -120,4 +148,9 @@ if len(proj_el) > 0:
 
 # print(citations)
 # print(personal_link)
+print(research)
+print(personal_link)
+print(experience_list)
+print(qualification_list)
+print(patents_list)
 driver.quit()
