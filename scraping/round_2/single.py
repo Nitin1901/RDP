@@ -25,15 +25,21 @@ i = 0
 #code to scrape all ids(scopus, orcid, google scholar)
 research_id_el = driver.find_element_by_id('identity-view')
 ids = research_id_el.find_elements_by_class_name('notification')
-professor_id = dict()
+links = []
+
 if len(ids) > 0:
     for id in ids:
         id_link = id.find_element_by_tag_name('a').get_attribute('href')
-        print(id_link)
+        # print(id_link)
         txt = id.text.split('\n')
-        professor_id[txt[0]] = txt[1]
+        professor_id = {
+            "name":txt[0],
+            "ID": txt[1],
+            "link": id_link
+        }
+        links.append(professor_id)
+        
 
-print(professor_id)
 
 # if len(border_elements) > 0:
 #     for i in range(0, len(border_elements)):
@@ -75,11 +81,12 @@ if len(driver.find_elements_by_id('expertise-view')) > 0:
         area = area_el[0].text
     interest_el = driver.find_elements_by_id('e_s_expertise')
     if len(interest_el) > 0:
-        interest = interest_el[0].text.split(',')
+        interest = interest_el[0].text.split(', ')
 research = {
     "area": area,
     "interests": interest
 }
+
 #personal info
 if len(driver.find_elements_by_id('list_panel_personal')) > 0:
     personal_info = driver.find_element_by_id('list_panel_personal')
@@ -148,9 +155,18 @@ if len(proj_el) > 0:
 
 # print(citations)
 # print(personal_link)
+
+print("Links")
+print(links)
+print("\nResearch")
 print(research)
+print("\nPersonal link")
 print(personal_link)
+print("\nExperience list")
 print(experience_list)
+print("\nqualification")
 print(qualification_list)
+print("\nPatents")
 print(patents_list)
+
 driver.quit()
