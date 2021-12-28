@@ -80,12 +80,20 @@ for link,researcher in zip(professor_links,researchers):
         exp_labels = exp_el.find_elements_by_class_name('cbp_tmlabel')
         for j in range(0, len(exp_time)):
             exp_split = exp_labels[j].text.split('\n')
-            exp = {
-                "duration": exp_time[j].text,
-                "designation": exp_split[0],
-                "department": exp_split[1],
-                "university": exp_split[2]
-            }
+            if len(exp_split) > 2:
+                exp = {
+                    "duration": exp_time[j].text,
+                    "designation": exp_split[0],
+                    "department": exp_split[1],
+                    "university": exp_split[2]
+                }
+            else:
+                exp = {
+                    "duration": exp_time[j].text,
+                    "designation": exp_split[0],
+                    "department": None,
+                    "university": exp_split[1]
+                }
             experience_list.append(exp)
         researcher["experience"] = experience_list
 

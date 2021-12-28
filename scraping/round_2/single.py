@@ -100,14 +100,24 @@ if len(driver.find_elements_by_id('exp-ul')) > 0:
     exp_el = driver.find_element_by_id('exp-ul')
     exp_time = exp_el.find_elements_by_class_name('cbp_tmtime')
     exp_labels = exp_el.find_elements_by_class_name('cbp_tmlabel')
+    
     for j in range(0, len(exp_time)):
         exp_split = exp_labels[j].text.split('\n')
-        exp = {
-            "duration": exp_time[j].text,
-            "designation": exp_split[0],
-            "department": exp_split[1],
-            "university": exp_split[2]
-        }
+        # p_tags = exp_labels[j].find_elements_by_tag_name('p')
+        if len(exp_split) > 2:
+            exp = {
+                "duration": exp_time[j].text,
+                "designation": exp_split[0],
+                "department": exp_split[1],
+                "university": exp_split[2]
+            }
+        else:
+            exp = {
+                "duration": exp_time[j].text,
+                "designation": exp_split[0],
+                "department": None,
+                "university": exp_split[1]
+            }
         experience_list.append(exp)
 
 #list of education qualification
