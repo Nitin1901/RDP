@@ -17,6 +17,7 @@ if len(driver.find_elements_by_class_name('list-product-description')) > 0:
         dept = info[-7]
         link_el = row.find_element_by_class_name('col-sm-3')
         link = link_el.find_element_by_tag_name('a').get_attribute('href')
+        print(link)
         area = info[3]
         interests = info[4].split(',')
         row = {

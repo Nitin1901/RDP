@@ -3,7 +3,7 @@ import time
 
 driver = webdriver.Chrome (executable_path="C:\\Program Files (x86)\\chromedriver.exe")
 driver.maximize_window()
-driver.get("https://pu.irins.org/profile/22965")
+driver.get("https://pu.irins.org/profile/59246")
 
 publications_lt = []
 sidenav = driver.find_elements_by_class_name('list-group-item')

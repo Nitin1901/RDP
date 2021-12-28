@@ -3,7 +3,7 @@ import time
 
 driver = webdriver.Chrome (executable_path="C:\\Program Files (x86)\\chromedriver.exe")
 driver.maximize_window()
-driver.get("https://iitd.irins.org/profile/42893")
+driver.get("https://pu.irins.org/profile/59252")
 
 faculty = []
 
