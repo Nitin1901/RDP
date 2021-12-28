@@ -3,7 +3,7 @@ import time
 
 driver = webdriver.Chrome (executable_path="C:\\Program Files (x86)\\chromedriver.exe")
 driver.maximize_window()
-driver.get("https://pu.irins.org/profile/59252")
+driver.get("https://iitd.irins.org/profile/42893")
 
 faculty = []
 
@@ -155,12 +155,24 @@ if len(inf) > 0:
             # print(len(box_split))
 
 #scrape projects
+projects_list = []
 proj_el = driver.find_elements_by_id('rp-form-view')
 if len(proj_el) > 0:
     projects = proj_el[0].find_elements_by_class_name('tag-box')
     if len(projects) > 0:
         for project in projects:
-            print(project.text)
+            if project.text is not '':
+                proj_split = project.text.split('\n')
+                if len(proj_split) > 1:
+                    project_detail = {
+                        "name": proj_split[0],
+                        "details": proj_split[1:]
+                    }
+                else:
+                    project_detail = {
+                        "name": proj_split[0]
+                    }
+                projects_list.append(project_detail)
 
 
 # print(citations)
@@ -178,5 +190,7 @@ print("\nqualification")
 print(qualification_list)
 print("\nPatents")
 print(patents_list)
+print("\nProjects")
+print(projects_list)
 
 driver.quit()
