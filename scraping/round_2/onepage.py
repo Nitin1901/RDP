@@ -1,5 +1,5 @@
 from selenium import webdriver
-
+import time
 
 driver = webdriver.Chrome (executable_path="C:\\Program Files (x86)\\chromedriver.exe")
 driver.maximize_window()
@@ -21,6 +21,8 @@ if len(driver.find_elements_by_class_name('list-product-description')) > 0:
         professor_links.append(link)
         area = info[3]
         interests = info[4].split(',')
+        image = row.find_element_by_tag_name('img')
+        image = image.get_attribute('src')
         row = {
             "name": name,
             "affiliations": {
@@ -30,7 +32,7 @@ if len(driver.find_elements_by_class_name('list-product-description')) > 0:
             },
             "education": None,
             "profile_link": None,
-            "profile_picture": None,
+            "profile_picture": image,
             "website": None,
             "research": {
                 "area": area,
@@ -62,7 +64,7 @@ for link,researcher in zip(professor_links,researchers):
                 "link": id_link
             }
             academic_identity.append(researcher_id)
-    researcher["academic_identity"] = academic_identity
+        researcher["academic_identity"] = academic_identity
 
     #personal info
     if len(driver.find_elements_by_id('list_panel_personal')) > 0:
@@ -138,7 +140,7 @@ for link,researcher in zip(professor_links,researchers):
         projects = proj_el[0].find_elements_by_class_name('tag-box')
         if len(projects) > 0:
             for project in projects:
-                if project.text is not '':
+                if project.text != '':
                     proj_split = project.text.split('\n')
                     if len(proj_split) > 1:
                         project_detail = {
@@ -150,7 +152,60 @@ for link,researcher in zip(professor_links,researchers):
                             "name": proj_split[0]
                         }
                     projects_list.append(project_detail)
-    researcher["projects"] = projects_list
+            researcher["projects"] = projects_list
+
+    publications_list = []
+    sidenav = driver.find_elements_by_class_name('list-group-item')
+    if len(sidenav) > 0:
+        for item in sidenav:
+            # print(item.text)
+            if item.text.lower() == 'publications':
+                link = item.find_element_by_tag_name('a')
+                if link:
+                    link = link.get_attribute('href')
+                    print(link)
+                    driver.get(link)
+                    time.sleep(5)
+                    publications = driver.find_elements_by_class_name('funny-boxes')
+                    if len(publications) > 0:                        
+                        for publication in publications:
+                            title = None
+                            authors = None
+                            type = None
+                            journal = None
+                            volume = None
+                            year = None
+                            title = publication.find_element_by_tag_name('h2')
+                            authors = publication.find_element_by_tag_name('p')
+                            elements = publication.find_element_by_class_name('label-info')
+                            type = elements.text
+                            remaining_text = publication.text
+                            remaining_text = remaining_text.replace(title.text, "")
+                            remaining_text = remaining_text.replace(authors.text, "")
+                            remaining_text = remaining_text.replace(type, "")
+                            remaining_text = remaining_text.split("\n")
+                            for i in remaining_text:
+                                if i:
+                                    l = i.split(",")
+                                    l = [i.strip().lower() for i in l]
+                                    journal = l[0]
+                                    for j in l[1:]:
+                                        x = j.split(' ')
+                                        if x[0].lower() == 'volume' and len(x)>1:
+                                            volume = x[1]
+                                        elif x[0].lower() == 'year' and len(x)>1:
+                                            year = x[1]
+                                    break
+                            publication_item = {
+                                "title": title.text,
+                                "authors": authors.text.split(';'),
+                                "type": type,
+                                "journal": journal,
+                                "volumn": volume,
+                                "year": year
+                            }
+                            publications_list.append(publication_item)
+                        researcher["publications"] = publications_list
 
     print(researcher)
 
