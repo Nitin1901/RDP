@@ -3,7 +3,7 @@ import time
 
 driver = webdriver.Chrome (executable_path="C:\\Program Files (x86)\\chromedriver.exe")
 driver.maximize_window()
-driver.get("https://srinivasuniversity.irins.org/profile/207960")
+driver.get("https://vidwan.inflibnet.ac.in/profile/32")
 
 faculty = []
 
@@ -196,24 +196,39 @@ if len(proj_el) > 0:
                     }
                 projects_list.append(project_detail)
 
+#similar experts
+similar_experts = []
+experts_cnt = driver.find_elements_by_id('list_expert')
+if len(experts_cnt) > 0:
+    experts_el = driver.find_element_by_id('list_expert')
+    experts_li = experts_el.find_elements_by_tag_name('a')
+    experts_names = experts_el.find_elements_by_tag_name('strong')
+    for j in range (0, len(experts_li)):
+        l = experts_li[j].get_attribute('href')
+        exp = {
+            "name": experts_names[j].text,
+            "ID": l[l.index('profile/')+8:]
+        }
+        similar_experts.append(exp)
+
 
 # print(citations)
 # print(personal_link)
-print("Citations")
-print(citations)
-print("\nLinks")
-print(links)
-print("\nResearch")
-print(research)
-print("\nPersonal link")
-print(personal_link)
-print("\nExperience list")
-print(experience_list)
-print("\nqualification")
-print(qualification_list)
-print("\nPatents")
-print(patents_list)
-print("\nProjects")
-print(projects_list)
+# print("Citations")
+# print(citations)
+# print("\nLinks")
+# print(links)
+# print("\nResearch")
+# print(research)
+# print("\nPersonal link")
+# print(personal_link)
+# print("\nExperience list")
+# print(experience_list)
+# print("\nqualification")
+# print(qualification_list)
+# print("\nPatents")
+# print(patents_list)
+# print("\nProjects")
+# print(projects_list)
 
 driver.quit()

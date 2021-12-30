@@ -3,7 +3,7 @@ import time
 
 driver = webdriver.Chrome (executable_path="C:\\Program Files (x86)\\chromedriver.exe")
 driver.maximize_window()
-driver.get("https://irins.org/irins/a/searchc/search")
+driver.get("https://vidwan.inflibnet.ac.in/searchc/search")
 
 researchers = []
 professor_links = []
@@ -34,10 +34,11 @@ if len(driver.find_elements_by_class_name('list-product-description')) > 0:
     rows = driver.find_elements_by_class_name('list-product-description')
     for row in rows:
         info = row.text.split('\n')
+        id = info[0][info[0].index(': '):]
         name = info[1]
         designation = info[2]
-        university = info[-6]
-        dept = info[-7]
+        university = info[-2]
+        dept = None
         link_el = row.find_element_by_class_name('col-sm-3')
         link = link_el.find_element_by_tag_name('a').get_attribute('href')
         professor_links.append(link)
@@ -46,6 +47,7 @@ if len(driver.find_elements_by_class_name('list-product-description')) > 0:
         image = row.find_element_by_tag_name('img')
         image = image.get_attribute('src')
         row = {
+            "id": id,
             "name": name,
             "affiliations": {
                 "designation": designation,
@@ -55,20 +57,21 @@ if len(driver.find_elements_by_class_name('list-product-description')) > 0:
             "education": None,
             "profile_link": None,
             "profile_picture": image,
-            "website": None,
+            # "website": None,
             # "research": {
             #     "area": area,
             #     "interests": interests
             # },
             "research_area": area,
-            "resaerch_interests": interests,
+            "research_interests": interests,
             "citations": None,
             "h_index": None,
             "experience": None,
             "publications": None,
             "patents": None,
             "projects": None,
-            "academic_identity": None
+            "academic_identity": None,
+            "similar_experts": None
         }
         researchers.append(row)
 
@@ -76,28 +79,30 @@ for link,researcher in zip(professor_links,researchers):
     driver.get(link)
 
     # Academic identity links and IDs
-    research_id_el = driver.find_element_by_id('identity-view')
-    ids = research_id_el.find_elements_by_class_name('notification')
-    academic_identity = []
-    values = dict()
-    if len(ids) > 0:
-        for id in ids:
-            id_link = id.find_element_by_tag_name('a').get_attribute('href')
-            # print(id_link)
-            txt = id.text.split('\n')
-            researcher_id = {
-                "name":txt[0],
-                "ID": txt[1],
-                "link": id_link
-            }
-            if('Google Scholar' in txt[0]):
-                values = google_scholar_scrape(id_link)
-                print(values)
-            academic_identity.append(researcher_id)
+    research_id_count = driver.find_elements_by_id('identity-view')
+    if len(research_id_count) > 0:
+        research_id_el = driver.find_element_by_id('identity-view')
+        ids = research_id_el.find_elements_by_class_name('notification')
+        academic_identity = []
+        values = dict()
+        if len(ids) > 0:
+            for id in ids:
+                id_link = id.find_element_by_tag_name('a').get_attribute('href')
+                # print(id_link)
+                txt = id.text.split('\n')
+                researcher_id = {
+                    "name":txt[0],
+                    "ID": txt[1],
+                    "link": id_link
+                }
+                if('Google Scholar' in txt[0]):
+                    values = google_scholar_scrape(id_link)
+                    print(values)
+                academic_identity.append(researcher_id)
 
-        researcher["citations"] = values["count"] if "count" in values else None
-        researcher["h_index"] = values["h_index"] if "h_index" in values else None
-        researcher["academic_identity"] = academic_identity
+            researcher["citations"] = values["count"] if "count" in values else None
+            researcher["h_index"] = values["h_index"] if "h_index" in values else None
+            researcher["academic_identity"] = academic_identity
         # print(researcher["citations"])
 
     #personal info
@@ -123,6 +128,8 @@ for link,researcher in zip(professor_links,researchers):
                     "department": exp_split[1],
                     "university": exp_split[2]
                 }
+                if(j == 0):
+                    researcher["affiliations"]["department"] = exp_split[1]
             else:
                 exp = {
                     "duration": exp_time[j].text,
@@ -141,11 +148,18 @@ for link,researcher in zip(professor_links,researchers):
         edu_labels = edu_el.find_elements_by_class_name('cbp_tmlabel')
         for j in range(0, len(edu_time)):
             edu_split = edu_labels[j].text.split('\n')
-            qual = {
-                "duration": edu_time[j].text,
-                "degree": edu_split[0],
-                "university": edu_split[1]
-            }
+            if len(edu_split) > 1:
+                qual = {
+                    "duration": edu_time[j].text,
+                    "degree": edu_split[0],
+                    "university": edu_split[1]
+                }
+            else:
+                qual = {
+                    "duration": edu_time[j].text,
+                    "degree": edu_split[0],
+                    "university": None
+                }
             qualification_list.append(qual)
         researcher["education"] = qualification_list
 
@@ -187,6 +201,22 @@ for link,researcher in zip(professor_links,researchers):
                         }
                     projects_list.append(project_detail)
             researcher["projects"] = projects_list
+    
+    #list of similar experts
+    similar_experts = []
+    experts_cnt = driver.find_elements_by_id('list_expert')
+    if len(experts_cnt) > 0:
+        experts_el = driver.find_element_by_id('list_expert')
+        experts_li = experts_el.find_elements_by_tag_name('a')
+        experts_names = experts_el.find_elements_by_tag_name('strong')
+        for j in range (0, len(experts_li)):
+            l = experts_li[j].get_attribute('href')
+            exp = {
+                "name": experts_names[j].text,
+                "ID": l[l.index('profile/')+8:]
+            }
+            similar_experts.append(exp)
+    researcher["similar_experts"] = similar_experts
 
     publications_list = []
     sidenav = driver.find_elements_by_class_name('list-group-item')
@@ -241,7 +271,7 @@ for link,researcher in zip(professor_links,researchers):
                             publications_list.append(publication_item)
                         researcher["publications"] = publications_list
 
-    print(researcher)
+    # print(researcher)
 
 print(researchers)
 driver.quit()
