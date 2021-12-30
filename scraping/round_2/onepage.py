@@ -8,6 +8,28 @@ driver.get("https://irins.org/irins/a/searchc/search")
 researchers = []
 professor_links = []
 
+def google_scholar_scrape(link):
+    citations = dict()
+    link = link.replace('http://', 'https://')
+    d = webdriver.Chrome (executable_path="C:\\Program Files (x86)\\chromedriver.exe")
+    d.maximize_window()
+    d.get(link)
+    cit_el = d.find_elements_by_id('gsc_rsb_st')
+    if len(cit_el) > 0:
+        citations_el = d.find_element_by_id('gsc_rsb_st')
+        rows = citations_el.find_elements_by_tag_name('tr')
+        if len(rows) > 0:
+            for row in rows:
+                if 'Citations' in row.text:
+                    citations["count"] = row.text.split(' ')[1]
+                if 'h-index' in row.text:
+                    citations["h_index"] = row.text.split(' ')[1]
+    
+    d.quit()
+    print(citations)
+    return citations
+    
+
 if len(driver.find_elements_by_class_name('list-product-description')) > 0:
     rows = driver.find_elements_by_class_name('list-product-description')
     for row in rows:
@@ -34,10 +56,14 @@ if len(driver.find_elements_by_class_name('list-product-description')) > 0:
             "profile_link": None,
             "profile_picture": image,
             "website": None,
-            "research": {
-                "area": area,
-                "interests": interests
-            },
+            # "research": {
+            #     "area": area,
+            #     "interests": interests
+            # },
+            "research_area": area,
+            "resaerch_interests": interests,
+            "citations": None,
+            "h_index": None,
             "experience": None,
             "publications": None,
             "patents": None,
@@ -53,6 +79,7 @@ for link,researcher in zip(professor_links,researchers):
     research_id_el = driver.find_element_by_id('identity-view')
     ids = research_id_el.find_elements_by_class_name('notification')
     academic_identity = []
+    values = dict()
     if len(ids) > 0:
         for id in ids:
             id_link = id.find_element_by_tag_name('a').get_attribute('href')
@@ -63,8 +90,15 @@ for link,researcher in zip(professor_links,researchers):
                 "ID": txt[1],
                 "link": id_link
             }
+            if('Google Scholar' in txt[0]):
+                values = google_scholar_scrape(id_link)
+                print(values)
             academic_identity.append(researcher_id)
+
+        researcher["citations"] = values["count"] if "count" in values else None
+        researcher["h_index"] = values["h_index"] if "h_index" in values else None
         researcher["academic_identity"] = academic_identity
+        # print(researcher["citations"])
 
     #personal info
     if len(driver.find_elements_by_id('list_panel_personal')) > 0:
@@ -213,10 +247,10 @@ print(researchers)
 driver.quit()
 
 # Code to push all the data to database
-from pymongo import MongoClient
+# from pymongo import MongoClient
 
-client = MongoClient("mongodb+srv://rdp:ETXTQD0ARke4vPqU@cluster0.ttc9e.mongodb.net/RDP?retryWrites=true&w=majority")
-db = client["RDP"]
-collection = db["Researchers"]
-result = collection.insert_many(researchers)
-print(result)
+# client = MongoClient("mongodb+srv://rdp:ETXTQD0ARke4vPqU@cluster0.ttc9e.mongodb.net/RDP?retryWrites=true&w=majority")
+# db = client["RDP"]
+# collection = db["Researchers"]
+# result = collection.insert_many(researchers)
+# print(result)

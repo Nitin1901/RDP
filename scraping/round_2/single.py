@@ -3,7 +3,7 @@ import time
 
 driver = webdriver.Chrome (executable_path="C:\\Program Files (x86)\\chromedriver.exe")
 driver.maximize_window()
-driver.get("https://iitd.irins.org/profile/42893")
+driver.get("https://srinivasuniversity.irins.org/profile/207960")
 
 faculty = []
 
@@ -12,7 +12,27 @@ faculty = []
 # border_elements = driver.find_elements_by_class_name('border_box')
 # cit_elements = driver.find_elements_by_class_name('cit_count')
 
-citations = None
+citations = {
+    "count": None,
+    "h_index": None
+}
+
+def google_scholar_scrape(link):
+    link = link.replace('http://', 'https://')
+    d = webdriver.Chrome (executable_path="C:\\Program Files (x86)\\chromedriver.exe")
+    d.maximize_window()
+    d.get(link)
+    cit_el = d.find_elements_by_id('gsc_rsb_st')
+    if len(cit_el) > 0:
+        citations_el = d.find_element_by_id('gsc_rsb_st')
+        rows = citations_el.find_elements_by_tag_name('tr')
+        if len(rows) > 0:
+            for row in rows:
+                if 'Citations' in row.text:
+                    citations["count"] = row.text.split(' ')[1]
+                if 'h-index' in row.text:
+                    citations["h_index"] = row.text.split(' ')[1]
+    d.quit()
 
 #code to scrape the citations and h-index according to google scholar element
 # if(len(cit_elements) > 0):
@@ -37,6 +57,8 @@ if len(ids) > 0:
             "ID": txt[1],
             "link": id_link
         }
+        if('Google Scholar' in txt[0]):
+            google_scholar_scrape(id_link)
         links.append(professor_id)
         
 
@@ -177,8 +199,9 @@ if len(proj_el) > 0:
 
 # print(citations)
 # print(personal_link)
-
-print("Links")
+print("Citations")
+print(citations)
+print("\nLinks")
 print(links)
 print("\nResearch")
 print(research)
