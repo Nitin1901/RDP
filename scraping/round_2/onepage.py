@@ -209,5 +209,14 @@ for link,researcher in zip(professor_links,researchers):
 
     print(researcher)
 
-# print(researchers)
+print(researchers)
 driver.quit()
+
+# Code to push all the data to database
+from pymongo import MongoClient
+
+client = MongoClient("mongodb+srv://rdp:ETXTQD0ARke4vPqU@cluster0.ttc9e.mongodb.net/RDP?retryWrites=true&w=majority")
+db = client["RDP"]
+collection = db["Researchers"]
+result = collection.insert_many(researchers)
+print(result)
