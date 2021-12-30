@@ -3,7 +3,20 @@ import time
 
 driver = webdriver.Chrome (executable_path="C:\\Program Files (x86)\\chromedriver.exe")
 driver.maximize_window()
-driver.get("https://iitd.irins.org/profile/42893")
+driver.get("https://vidwan.inflibnet.ac.in/searchc/search")
+
+pagination = driver.find_element_by_class_name("text-center")
+pages = pagination.find_elements_by_tag_name("a")
+total_pages = 0
+for page in pages:
+    if page.text == "Next":
+        break
+    total_pages = int(page.text)
+    # print(page.text)
+
+print(total_pages)
+
+# driver.find_element_by_link_text("3").click()
 
 image_file = None
 image = driver.find_elements_by_tag_name('img')
