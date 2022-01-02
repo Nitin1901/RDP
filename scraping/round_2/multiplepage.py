@@ -39,48 +39,52 @@ while(page >= total_pages-10):
     print(page)
     driver_main.find_element_by_link_text(str(page)).click() 
     researchers = []
+    researchers_new = []
     professor_links = []
     if len(driver_main.find_elements_by_class_name('list-product-description')) > 0:
         rows = driver_main.find_elements_by_class_name('list-product-description')
         for row in rows:
+
             info = row.text.split('\n')
-            id = info[0][info[0].index(': '):]
-            name = info[1]
-            designation = info[2]
-            university = info[-2]
-            dept = None
-            link_el = row.find_element_by_class_name('col-sm-3')
-            link = link_el.find_element_by_tag_name('a').get_attribute('href')
-            professor_links.append(link)
-            area = info[3]
-            interests = info[4].split(',')
-            image = row.find_element_by_tag_name('img')
-            image = image.get_attribute('src')
-            row = {
-                "id": id,
-                "name": name,
-                "affiliations": {
-                    "designation": designation,
-                    "university": university,
-                    "department": dept
-                },
-                "education": None,
-                "profile_link": None,
-                "profile_picture": image,
-                "research_area": area,
-                "research_interests": interests,
-                "citations": None,
-                "h_index": None,
-                "experience": None,
-                "publications": None,
-                "patents": None,
-                "projects": None,
-                "academic_identity": None,
-                "similar_experts": None
-            }
-            researchers.append(row)
+            if len(info) > 3:
+                id = info[0][info[0].index(': '):]
+                name = info[1]
+                designation = info[2]
+                university = info[-2]
+                dept = None
+                link_el = row.find_element_by_class_name('col-sm-3')
+                link = link_el.find_element_by_tag_name('a').get_attribute('href')
+                professor_links.append(link)
+                area = info[3]
+                interests = info[4].split(',')
+                image = row.find_element_by_tag_name('img')
+                image = image.get_attribute('src')
+                row = {
+                    "id": id,
+                    "name": name,
+                    "affiliations": {
+                        "designation": designation,
+                        "university": university,
+                        "department": dept
+                    },
+                    "education": None,
+                    "profile_link": None,
+                    "profile_picture": image,
+                    "research_area": area,
+                    "research_interests": interests,
+                    "citations": None,
+                    "h_index": None,
+                    "experience": None,
+                    "publications": None,
+                    "patents": None,
+                    "projects": None,
+                    "academic_identity": None,
+                    "similar_experts": None
+                }
+                researchers.append(row)
 
     for link,researcher in zip(professor_links,researchers):
+        flag = 0
         driver = webdriver.Chrome (executable_path="C:\\Program Files (x86)\\chromedriver.exe")
         driver.maximize_window()
         driver.get(link)
@@ -93,6 +97,7 @@ while(page >= total_pages-10):
             academic_identity = []
             values = dict()
             if len(ids) > 0:
+                flag = flag + 1
                 for id in ids:
                     id_link = id.find_element_by_tag_name('a').get_attribute('href')
                     # print(id_link)
@@ -114,6 +119,7 @@ while(page >= total_pages-10):
 
         #personal info
         if len(driver.find_elements_by_id('list_panel_personal')) > 0:
+            flag = flag + 1
             personal_info = driver.find_element_by_id('list_panel_personal')
             link_el = personal_info.find_elements_by_tag_name('a')
             if len(link_el) > 0:
@@ -123,6 +129,7 @@ while(page >= total_pages-10):
         #list of experience
         experience_list = []
         if len(driver.find_elements_by_id('exp-ul')) > 0:
+            flag = flag + 1
             exp_el = driver.find_element_by_id('exp-ul')
             exp_time = exp_el.find_elements_by_class_name('cbp_tmtime')
             exp_labels = exp_el.find_elements_by_class_name('cbp_tmlabel')
@@ -150,6 +157,7 @@ while(page >= total_pages-10):
         #list of education qualification
         qualification_list = []
         if len(driver.find_elements_by_id('qua-ul')) > 0:
+            flag = flag + 1
             edu_el = driver.find_element_by_id('qua-ul')
             edu_time = edu_el.find_elements_by_class_name('cbp_tmtime')
             edu_labels = edu_el.find_elements_by_class_name('cbp_tmlabel')
@@ -174,6 +182,7 @@ while(page >= total_pages-10):
         patents_list = []            
         inf = driver.find_elements_by_id('pt-form-view')
         if len(inf) > 0:
+            flag = flag + 1
             boxes = inf[0].find_elements_by_class_name('tag-box')
             if len(boxes) > 0:
                 for box in boxes:
@@ -192,6 +201,7 @@ while(page >= total_pages-10):
         projects_list = []
         proj_el = driver.find_elements_by_id('rp-form-view')
         if len(proj_el) > 0:
+            flag = flag + 1
             projects = proj_el[0].find_elements_by_class_name('tag-box')
             if len(projects) > 0:
                 for project in projects:
@@ -213,6 +223,7 @@ while(page >= total_pages-10):
         similar_experts = []
         experts_cnt = driver.find_elements_by_id('list_expert')
         if len(experts_cnt) > 0:
+            flag = flag + 1
             experts_el = driver.find_element_by_id('list_expert')
             experts_li = experts_el.find_elements_by_tag_name('a')
             experts_names = experts_el.find_elements_by_tag_name('strong')
@@ -233,6 +244,7 @@ while(page >= total_pages-10):
                 if item.text.lower() == 'publications':
                     link = item.find_element_by_tag_name('a')
                     if link:
+                        flag = flag + 1
                         link = link.get_attribute('href')
                         print(link)
                         driver.get(link)
@@ -279,8 +291,9 @@ while(page >= total_pages-10):
                             researcher["publications"] = publications_list
         driver.quit()
         # print(researcher)
-
-    print(researchers)
+        if (flag != 0):
+            researchers_new.append(researcher)
+    print(researchers_new)
     # driver_main.find_element_by_link_text(str(page)).click()
     page -= 1
 
