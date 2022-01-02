@@ -287,7 +287,7 @@ while(page <= total_pages):
                                     "authors": authors.text.split(';'),
                                     "type": type,
                                     "journal": journal,
-                                    "volumn": volume,
+                                    "volume": volume,
                                     "year": year
                                 }
                                 publications_list.append(publication_item)

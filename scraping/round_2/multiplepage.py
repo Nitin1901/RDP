@@ -1,5 +1,10 @@
 from selenium import webdriver
 import time
+from pymongo import MongoClient
+
+client = MongoClient("mongodb+srv://rdp:ETXTQD0ARke4vPqU@cluster0.ttc9e.mongodb.net/RDP?retryWrites=true&w=majority")
+db = client["RDP"]
+collection = db["Researchers"]
 
 driver_main = webdriver.Chrome (executable_path="C:\\Program Files (x86)\\chromedriver.exe")
 driver_main.maximize_window()
@@ -31,7 +36,7 @@ def google_scholar_scrape(link):
                     citations["h_index"] = row.text.split(' ')[1]
     
     d.quit()
-    print(citations)
+    # print(citations)
     return citations
 
 page = total_pages
@@ -44,10 +49,9 @@ while(page >= total_pages-10):
     if len(driver_main.find_elements_by_class_name('list-product-description')) > 0:
         rows = driver_main.find_elements_by_class_name('list-product-description')
         for row in rows:
-
             info = row.text.split('\n')
             if len(info) > 3:
-                id = info[0][info[0].index(': '):]
+                id = info[0][info[0].index(': ')+2:]
                 name = info[1]
                 designation = info[2]
                 university = info[-2]
@@ -82,8 +86,9 @@ while(page >= total_pages-10):
                     "similar_experts": None
                 }
                 researchers.append(row)
-
+    # print(professor_links, researchers)
     for link,researcher in zip(professor_links,researchers):
+        print(researcher["id"])
         flag = 0
         driver = webdriver.Chrome (executable_path="C:\\Program Files (x86)\\chromedriver.exe")
         driver.maximize_window()
@@ -109,7 +114,7 @@ while(page >= total_pages-10):
                     }
                     if('Google Scholar' in txt[0]):
                         values = google_scholar_scrape(id_link)
-                        print(values)
+                        # print(values)
                     academic_identity.append(researcher_id)
 
                 researcher["citations"] = values["count"] if "count" in values else None
@@ -284,7 +289,7 @@ while(page >= total_pages-10):
                                     "authors": authors.text.split(';'),
                                     "type": type,
                                     "journal": journal,
-                                    "volumn": volume,
+                                    "volume": volume,
                                     "year": year
                                 }
                                 publications_list.append(publication_item)
@@ -294,6 +299,9 @@ while(page >= total_pages-10):
         if (flag != 0):
             researchers_new.append(researcher)
     print(researchers_new)
+    if len(researchers_new)>0:
+        result = collection.insert_many(researchers_new)
+        print(result)
     # driver_main.find_element_by_link_text(str(page)).click()
     page -= 1
 
