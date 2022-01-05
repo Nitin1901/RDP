@@ -13,8 +13,8 @@ Install a web driver for selenium to work. <br>
 For example: Download Google chrome driver according to the required OS. Extract the folder and mention the location of webdriver in the crawl.py file.
 
 ```bash
->>> cd scraping
->>> python crawl.py
+cd scraping
+python crawl.py
 ```
 
 ## Running the Web Application
