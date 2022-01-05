@@ -1,34 +1,33 @@
-import React, { useState, useEffect } from "react";
-import { Grid, TextField, InputAdornment, IconButton } from "@mui/material";
-import ProfCard from "../Components/ProfCard";
-import SearchIcon from "@mui/icons-material/Search";
-import Loader from "../Components/Loader";
-import {
-  getProfessorDetails,
-  setProfessorSepcialisation,
-} from "../Actions/profActions";
-import { useDispatch, useSelector } from "react-redux";
+import React, { useState, useEffect } from 'react';
+import { Grid, TextField, InputAdornment, IconButton } from '@mui/material';
+import ProfCard from '../Components/ProfCard';
+import SearchIcon from '@mui/icons-material/Search';
+import Loader from '../Components/Loader';
+import { getProfessorDetails, setProfessorSepcialisation } from '../Actions/profActions';
+import { useDispatch, useSelector } from 'react-redux';
+import Paginate from '../Components/Paginate';
 
-const HomeScreen = () => {
-  const [specialisation, setSpecialisation] = useState("");
+const HomeScreen = ({ history, match }) => {
+  const keyword = match.params.keyword;
+  const pageNumber = match.params.pageNumber || 1;
+
+  const [specialisation, setSpecialisation] = useState('');
 
   const dispatch = useDispatch();
 
   const professorDetails = useSelector((state) => state.professorDetails);
-  let { loading, error, professorInfo: data } = professorDetails;
+  let { loading, error, data, page, pages } = professorDetails;
 
   useEffect(() => {
-    if (!data) {
-      dispatch(getProfessorDetails());
-    }
-  }, [specialisation]);
+    dispatch(getProfessorDetails(keyword, pageNumber));
+  }, [specialisation, keyword, pageNumber]);
 
   return (
     <>
       <Grid pt={2} container align="center" justifyContent="center">
         <Grid item xs={11} md={12} p={1}>
           <TextField
-            label="Specialisation"
+            label="Search"
             type="text"
             fullWidth
             margin="dense"
@@ -43,26 +42,26 @@ const HomeScreen = () => {
               ),
             }}
             onKeyPress={(e) => {
-              if (e.key === "Enter") {
-                setSpecialisation(e.target.value);
-                dispatch(setProfessorSepcialisation(e.target.value));
+              if (e.key === 'Enter') {
+                if (e.target.value !== '') history.push(`/search/${e.target.value}`);
+                else history.push('/');
               }
             }}
           />
         </Grid>
         {loading ? (
           <Loader />
-        ) : specialisation === "" ? (
-          data &&
-          data.slice(0, 50).map((prof) => {
-            return <ProfCard data={prof} />;
-          })
         ) : (
           data &&
           data.map((prof) => {
-            return <ProfCard data={prof} />;
+            return <ProfCard data={prof} history={history} />;
           })
         )}
+      </Grid>
+      <Grid contaimer alignItems="center" justifyContent="center">
+        <Grid item sx={{ margin: 4, ml: '25vw' }}>
+          <Paginate page={page} pages={pages} keyword={keyword} history={history}></Paginate>
+        </Grid>
       </Grid>
     </>
   );

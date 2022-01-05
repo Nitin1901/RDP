@@ -1,6 +1,15 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
-const professorSchema = new mongoose.Schema({});
+const researcherSchema = new mongoose.Schema({
+  name: String,
+  research_interests: [],
+  research_area: String,
+  affiliations: {
+    designation: String,
+    university: String,
+    department: String,
+  },
+});
 
-const Professor = mongoose.model("Professor", professorSchema, "Professor");
-export default Professor;
+const Researcher = mongoose.model('Researcher', researcherSchema, 'Researchers');
+export default Researcher;

@@ -4,12 +4,14 @@ import { composeWithDevTools } from "redux-devtools-extension";
 import {
   professorDetailsReducer,
   setProfessorSepcialisationReducer,
+  professorDetailReducer,
 } from "./Reducers/profReducers";
 
 //All the list of reducers which hold the state and pass it to components
 const reducer = combineReducers({
   professorDetails: professorDetailsReducer,
   setProfessorSpecialisation: setProfessorSepcialisationReducer,
+  professorDetail: professorDetailReducer,
 });
 
 //To get the user info from localstorage and add them to the initial state
@@ -25,6 +27,10 @@ const initialState = {
   },
   setProfessorSpecialisation: {
     specialisation: "",
+  },
+  professorDetail: {
+    loading: true,
+    professorInfo: null,
   },
 };
 
