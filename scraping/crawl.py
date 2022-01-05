@@ -6,6 +6,7 @@ client = MongoClient("mongodb+srv://rdp:ETXTQD0ARke4vPqU@cluster0.ttc9e.mongodb.
 db = client["RDP"]
 collection = db["Researchers"]
 
+#Mention the location of the chromedriver in the executable path
 driver_main = webdriver.Chrome (executable_path="C:\\Program Files (x86)\\chromedriver.exe")
 driver_main.maximize_window()
 driver_main.get("https://vidwan.inflibnet.ac.in/searchc/search")
