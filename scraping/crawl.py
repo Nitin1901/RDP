@@ -2,7 +2,7 @@ from selenium import webdriver
 import time
 from pymongo import MongoClient
 
-client = MongoClient("mongodb+srv://rdp:ETXTQD0ARke4vPqU@cluster0.ttc9e.mongodb.net/RDP?retryWrites=true&w=majority")
+client = MongoClient("<URI string>")
 db = client["RDP"]
 collection = db["Researchers"]
 
