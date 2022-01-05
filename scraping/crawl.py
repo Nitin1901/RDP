@@ -18,6 +18,7 @@ for page in pages:
         break
     total_pages = int(page.text)
 
+
 def google_scholar_scrape(link):
     citations = dict()
     link = link.replace('http://', 'https://')
@@ -39,10 +40,9 @@ def google_scholar_scrape(link):
     # print(citations)
     return citations
 
-page = total_pages
-while(page >= total_pages-10):
-    print(page)
-    driver_main.find_element_by_link_text(str(page)).click() 
+page = 2
+
+while(page <= total_pages):
     researchers = []
     researchers_new = []
     professor_links = []
@@ -86,9 +86,8 @@ while(page >= total_pages-10):
                     "similar_experts": None
                 }
                 researchers.append(row)
-    # print(professor_links, researchers)
+
     for link,researcher in zip(professor_links,researchers):
-        print(researcher["id"])
         flag = 0
         driver = webdriver.Chrome (executable_path="C:\\Program Files (x86)\\chromedriver.exe")
         driver.maximize_window()
@@ -102,20 +101,21 @@ while(page >= total_pages-10):
             academic_identity = []
             values = dict()
             if len(ids) > 0:
-                flag = flag + 1
                 for id in ids:
+                    flag = flag + 1
                     id_link = id.find_element_by_tag_name('a').get_attribute('href')
                     # print(id_link)
                     txt = id.text.split('\n')
-                    researcher_id = {
-                        "name":txt[0],
-                        "ID": txt[1],
-                        "link": id_link
-                    }
-                    if('Google Scholar' in txt[0]):
-                        values = google_scholar_scrape(id_link)
-                        # print(values)
-                    academic_identity.append(researcher_id)
+                    if len(txt) >= 2:
+                        researcher_id = {
+                            "name":txt[0],
+                            "ID": txt[1],
+                            "link": id_link
+                        }
+                        if('Google Scholar' in txt[0]):
+                            values = google_scholar_scrape(id_link)
+                            # print(values)
+                        academic_identity.append(researcher_id)
 
                 researcher["citations"] = values["count"] if "count" in values else None
                 researcher["h_index"] = values["h_index"] if "h_index" in values else None
@@ -251,7 +251,7 @@ while(page >= total_pages-10):
                     if link:
                         flag = flag + 1
                         link = link.get_attribute('href')
-                        print(link)
+                        # print(link)
                         driver.get(link)
                         time.sleep(10)
                         publications = driver.find_elements_by_class_name('funny-boxes')
@@ -295,23 +295,14 @@ while(page >= total_pages-10):
                                 publications_list.append(publication_item)
                             researcher["publications"] = publications_list
         driver.quit()
-        # print(researcher)
         if (flag != 0):
             researchers_new.append(researcher)
-    print(researchers_new)
-    if len(researchers_new)>0:
-        result = collection.insert_many(researchers_new)
-        print(result)
-    # driver_main.find_element_by_link_text(str(page)).click()
-    page -= 1
-
+        # print(researcher)
+        print(researchers_new)
+        if len(researchers_new)>0:
+            result = collection.insert_many(researchers_new)
+            print(result)
+    
+    driver_main.find_element_by_link_text(str(page)).click()
+    page += 1
 driver_main.quit()
-
-# Code to push all the data to database
-# from pymongo import MongoClient
-
-# client = MongoClient("mongodb+srv://rdp:ETXTQD0ARke4vPqU@cluster0.ttc9e.mongodb.net/RDP?retryWrites=true&w=majority")
-# db = client["RDP"]
-# collection = db["Researchers"]
-# result = collection.insert_many(researchers)
-# print(result)
